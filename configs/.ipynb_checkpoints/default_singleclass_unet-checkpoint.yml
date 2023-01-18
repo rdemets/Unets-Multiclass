@@ -1,0 +1,146 @@
+general:
+#### General settings ####
+  dataset_dir: '/Users/cjt678/Desktop/Unets/Data/'
+  #dataset_dir: '/mnt/mbi/home/mbirdm/AI/data_ai/Anne/Unet_Noyau/train/'
+  model_dir: '/Users/cjt678/Desktop/Unets/Networks/'
+  image_subfolder: 'Images'
+  ground_truth_subfolder: 'Masks'
+  
+  # CPU/GPU settings
+  visible_gpu: None
+  use_cpu: False
+  for_prediction: False
+  
+  #callbacks
+  reduce_LR_on_plateau: True
+  use_tensorboard: True
+  early_stopping: False
+  
+  # File Saving
+  save_as_uint16: True
+
+model:
+#### Model parameters ####
+  filters: 16 # convolution filters
+  levels: 4 # for unet 
+  num_epochs: 120
+  val_split: 0.1
+  batch_size_per_GPU: 6
+  
+  optimizer: 
+    optimizer_function: 'adam' #'sgd','rmsprop', 'adam'
+    learning_rate: 0.0001
+    decay: 0
+    momentum: 0.9
+    nesterov: True
+    
+  loss: 'dice_loss' #'bce_dice_loss', 'binary_crossentropy' 'categorical_crossentropy','jaccard_distance_loss','lovasz_hinge','dice_loss','sparse_categorical_crossentropy'
+  edge_enhance: True
+  
+  metrics:
+    - 'IoU' # 'binary_accuracy','categorical_accuracy', 'IoU'
+  
+  dropout_value: 0.5
+  weight_regularizer: 0
+  
+  initializer: 'he_normal'
+  strides: [1, 1]
+  
+  activation:
+    activation_function: 'relu' #'relu', 'sigmoid','softmax', 'tanh'
+    final_activation: 'sigmoid' #'relu', 'sigmoid','softmax', 'tanh'
+    
+  padding: 'same'
+  
+images:
+#### Image/Ground truth settings ####
+  tile_size: [512,512] # h,w,z
+  tile_overlap_size: [0,0]
+  image_channel: 1
+  nb_classes: 1 
+  invert_ground_truth: False
+  use_binary_erosion: False
+  use_binary_dilation: False
+  use_binary_dilation_after_augmentation: False
+  disk_size: 1
+  
+  # image normalization during dataset loading
+  percentile_normalization: True
+  percentile: [3, 99.8]
+  
+  # patch normalization during test time
+  scale_input: False
+  mean_std_normalization: False
+  mean: 0
+  std: 0
+
+augmentation:
+#### Image augmentations settings ####
+  augmentation_library: 'albumentations'
+  num_augmented_images: 10
+  augmentations_p: 0.9
+  
+  random_rotate: True
+  random_rotate_p: 0.9
+  
+  flip: True
+  transpose: True
+  
+  blur_group: False
+  blur_group_p: 0.3
+  
+  motion_blur: False
+  motion_blur_p: 0.1
+  median_blur: False
+  median_blur_limit: 3
+  median_blur_p: 0.3
+  blur: False
+  blur_limit: 3
+  blur_p: 0.3
+  
+  shift_scale_rotate: True
+  shift_scale_rotate_p: 0.3
+  shift_limit: 0.0625
+  scale_limit: 0.5
+  rotate_limit: 45
+  
+  distortion_group: False
+  distortion_group_p: 0.2
+  optical_distortion: False
+  optical_distortion_p: 0.3
+  elastic_transform: False
+  elastic_transform_p: 0.3
+  grid_distortion: False
+  grid_distortion_p: 0.3
+  
+  brightness_contrast_group: False
+  brightness_contrast_group_p: 0.3
+  clahe: False
+  sharpen: False
+  random_brightness_contrast: False
+  
+callbacks:
+#### Callback settings ####
+  # Tensorboard settings
+  tensorboard:
+    write_graph: False
+    write_images: False
+    write_grads: False
+    histogram_freq: 0
+
+  reduceLR:
+  # Reduce LR on plateau settings
+    reduce_LR_monitor: 'val_loss'
+    reduce_LR_patience: 10
+    reduce_LR_factor: 0.5
+    reduce_LR_min_lr: 0.000001
+  
+  earlystopping:
+  # Early stopping settings
+    early_stopping_monitor: 'val_loss'
+    early_stopping_patience: 20
+    early_stopping_min_delta: 0
+    
+  modelcheckpoint:
+  # Model checkpoint settings
+    save_best_weights: True

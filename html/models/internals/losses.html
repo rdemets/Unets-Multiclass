@@ -1,0 +1,705 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.1" />
+<title>models.internals.losses API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>models.internals.losses</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from keras import backend as K
+from keras.losses import binary_crossentropy, mean_absolute_error
+import tensorflow as tf
+
+def jaccard_distance_loss(y_true, y_pred, smooth=100):
+    &#34;&#34;&#34;
+    Jaccard = (|X &amp; Y|)/ (|X|+ |Y| - |X &amp; Y|)
+            = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
+    
+    The jaccard distance loss is usefull for unbalanced datasets. This has been
+    shifted so it converges on 0 and is smoothed to avoid exploding or disapearing
+    gradient.
+    
+    Ref: https://en.wikipedia.org/wiki/Jaccard_index
+    
+    @url: https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
+    @author: wassname
+    &#34;&#34;&#34;
+    intersection = K.sum(y_true * y_pred, axis=-1)
+    sum_ = K.sum(y_true + y_pred, axis=-1)
+    jac = (intersection + smooth) / (sum_ - intersection + smooth)
+    return (1 - jac) * smooth
+
+def dice_coef(y_true, y_pred, smooth=1.):
+    &#34;&#34;&#34;
+    Dice = (2*|X &amp; Y|)/ (|X|+ |Y|)
+         =  2*sum(|A*B|)/(sum(A^2)+sum(B^2))
+    ref: https://arxiv.org/pdf/1606.04797v1.pdf
+    
+    from wassname as well
+    &#34;&#34;&#34;
+    intersection = K.sum(y_true * y_pred, axis=-1)
+    return (2. * intersection + smooth) / (K.sum(K.square(y_true),-1) + K.sum(K.square(y_pred),-1) + smooth)
+
+def dice_coef_loss(y_true, y_pred):
+    return 1. - dice_coef(y_true, y_pred)
+
+def bce_dice_loss(y_true, y_pred):
+    return 1. - dice_coef(y_true, y_pred) + binary_crossentropy(y_true, y_pred)
+
+def bce_ssim_loss(y_true, y_pred):
+    return DSSIM_loss(y_true, y_pred) + binary_crossentropy(y_true, y_pred)
+
+# code download from: https://github.com/bermanmaxim/LovaszSoftmax
+def lovasz_grad(gt_sorted):
+    &#34;&#34;&#34;
+    Computes gradient of the Lovasz extension w.r.t sorted errors
+    See Alg. 1 in paper
+    &#34;&#34;&#34;
+    gts = tf.reduce_sum(gt_sorted)
+    intersection = gts - tf.cumsum(gt_sorted)
+    union = gts + tf.cumsum(1. - gt_sorted)
+    jaccard = 1. - intersection / union
+    jaccard = tf.concat((jaccard[0:1], jaccard[1:] - jaccard[:-1]), 0)
+    return jaccard
+
+
+# --------------------------- BINARY LOSSES ---------------------------
+
+def lovasz_hinge(logits, labels, per_image=True, ignore=None):
+    &#34;&#34;&#34;
+    Binary Lovasz hinge loss
+      logits: [B, H, W] Variable, logits at each pixel (between -\infty and +\infty)
+      labels: [B, H, W] Tensor, binary ground truth masks (0 or 1)
+      per_image: compute the loss per image instead of per batch
+      ignore: void class id
+    &#34;&#34;&#34;
+    if per_image:
+        def treat_image(log_lab):
+            log, lab = log_lab
+            log, lab = tf.expand_dims(log, 0), tf.expand_dims(lab, 0)
+            log, lab = flatten_binary_scores(log, lab, ignore)
+            return lovasz_hinge_flat(log, lab)
+        losses = tf.map_fn(treat_image, (logits, labels), dtype=tf.float32)
+        loss = tf.reduce_mean(losses)
+    else:
+        loss = lovasz_hinge_flat(*flatten_binary_scores(logits, labels, ignore))
+    return loss
+
+
+def lovasz_hinge_flat(logits, labels):
+    &#34;&#34;&#34;
+    Binary Lovasz hinge loss
+      logits: [P] Variable, logits at each prediction (between -\infty and +\infty)
+      labels: [P] Tensor, binary ground truth labels (0 or 1)
+      ignore: label to ignore
+    &#34;&#34;&#34;
+
+    def compute_loss():
+        labelsf = tf.cast(labels, logits.dtype)
+        signs = 2. * labelsf - 1.
+        errors = 1. - logits * tf.stop_gradient(signs)
+        errors_sorted, perm = tf.nn.top_k(errors, k=tf.shape(errors)[0], name=&#34;descending_sort&#34;)
+        gt_sorted = tf.gather(labelsf, perm)
+        grad = lovasz_grad(gt_sorted)
+        loss = tf.tensordot(tf.nn.relu(errors_sorted), tf.stop_gradient(grad), 1, name=&#34;loss_non_void&#34;)
+        return loss
+
+    # deal with the void prediction case (only void pixels)
+    loss = tf.cond(tf.equal(tf.shape(logits)[0], 0),
+                   lambda: tf.reduce_sum(logits) * 0.,
+                   compute_loss,
+                   strict=True,
+                   name=&#34;loss&#34;
+                   )
+    return loss
+
+
+def flatten_binary_scores(scores, labels, ignore=None):
+    &#34;&#34;&#34;
+    Flattens predictions in the batch (binary case)
+    Remove labels equal to &#39;ignore&#39;
+    &#34;&#34;&#34;
+    scores = tf.reshape(scores, (-1,))
+    labels = tf.reshape(labels, (-1,))
+    if ignore is None:
+        return scores, labels
+    valid = tf.not_equal(labels, ignore)
+    vscores = tf.boolean_mask(scores, valid, name=&#39;valid_scores&#39;)
+    vlabels = tf.boolean_mask(labels, valid, name=&#39;valid_labels&#39;)
+    return vscores, vlabels
+
+def lovasz_loss(y_true, y_pred):
+    y_true, y_pred = K.cast(K.squeeze(y_true, -1), &#39;int32&#39;), K.cast(K.squeeze(y_pred, -1), &#39;float32&#39;)
+    #logits = K.log(y_pred / (1. - y_pred))
+    logits = y_pred #Jiaxin
+    loss = lovasz_hinge(logits, y_true, per_image = True, ignore = None)
+    return loss
+
+# Difference of Structural Similarity
+
+def DSSIM_loss(y_true, y_pred, k1=0.01, k2=0.03, kernel_size=3, max_value=1.0):
+    # There are additional parameters for this function
+    # Note: some of the &#39;modes&#39; for edge behavior do not yet have a
+    # gradient definition in the Theano tree
+    #   and cannot be used for learning
+    
+    c1 = (k1 * max_value) ** 2
+    c2 = (k2 * max_value) ** 2
+
+    kernel = [kernel_size, kernel_size]
+    y_true = K.reshape(y_true, [-1] + list(K.int_shape(y_pred)[1:]))
+    y_pred = K.reshape(y_pred, [-1] + list(K.int_shape(y_pred)[1:]))
+
+    patches_pred = tf.extract_image_patches(y_pred, [1, 5, 5, 1], [1, 2, 2, 1], [1, 1, 1, 1], &#34;SAME&#34;)
+    patches_true = tf.extract_image_patches(y_true, [1, 5, 5, 1], [1, 2, 2, 1], [1, 1, 1, 1], &#34;SAME&#34;)
+
+    # Reshape to get the var in the cells
+    bs, w, h, c = K.int_shape(patches_pred)
+    patches_pred = K.reshape(patches_pred, [-1, w, h, c])
+    patches_true = K.reshape(patches_true, [-1, w, h, c])
+    # Get mean
+    u_true = K.mean(patches_true, axis=-1)
+    u_pred = K.mean(patches_pred, axis=-1)
+    # Get variance
+    var_true = K.var(patches_true, axis=-1)
+    var_pred = K.var(patches_pred, axis=-1)
+    # Get std dev
+    covar_true_pred = K.mean(patches_true * patches_pred, axis=-1) - u_true * u_pred
+
+    ssim = (2 * u_true * u_pred + c1) * (2 * covar_true_pred + c2)
+    denom = ((K.square(u_true)
+              + K.square(u_pred)
+              + c1) * (var_pred + var_true + c2))
+    ssim /= denom  # no need for clipping, c1 and c2 make the denom non-zero
+    return K.mean((1.0 - ssim) / 2.0)
+
+def dssim_mae_loss(y_true, y_pred):
+    return DSSIM_loss(y_true, y_pred) + mean_absolute_error(y_true, y_pred)
+
+#MSSim
+#https://stackoverflow.com/questions/48744945/keras-ms-ssim-as-loss-function
+def keras_SSIM_cs(y_true, y_pred):
+    axis=None
+    gaussian = make_kernel(1.5)
+    x = tf.nn.conv2d(y_true, gaussian, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+    y = tf.nn.conv2d(y_pred, gaussian, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+
+    u_x=K.mean(x, axis=axis)
+    u_y=K.mean(y, axis=axis)
+
+    var_x=K.var(x, axis=axis)
+    var_y=K.var(y, axis=axis)
+
+    cov_xy=cov_keras(x, y, axis)
+
+    K1=0.01
+    K2=0.03
+    L=1  # depth of image (255 in case the image has a differnt scale)
+
+    C1=(K1*L)**2
+    C2=(K2*L)**2
+    C3=C2/2
+
+    l = ((2*u_x*u_y)+C1) / (K.pow(u_x,2) + K.pow(u_x,2) + C1)
+    c = ((2*K.sqrt(var_x)*K.sqrt(var_y))+C2) / (var_x + var_y + C2)
+    s = (cov_xy+C3) / (K.sqrt(var_x)*K.sqrt(var_y) + C3)
+
+    return [c,s,l]
+
+def keras_MS_SSIM(y_true, y_pred):
+    iterations = 5
+    x=y_true
+    y=y_pred
+    weight = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]
+    c=[]
+    s=[]
+    for i in range(iterations):
+        cs=keras_SSIM_cs(x, y)
+        c.append(cs[0])
+        s.append(cs[1])
+        l=cs[2]
+        if(i!=4):
+            x=tf.image.resize_images(x, (x.get_shape().as_list()[1]//(2**(i+1)), x.get_shape().as_list()[2]//(2**(i+1))))
+            y=tf.image.resize_images(y, (y.get_shape().as_list()[1]//(2**(i+1)), y.get_shape().as_list()[2]//(2**(i+1))))
+    c = tf.stack(c)
+    s = tf.stack(s)
+    cs = c*s
+
+    #Normalize: suggestion from https://github.com/jorge-pessoa/pytorch-msssim/issues/2 last comment to avoid NaN values
+    l=(l+1)/2
+    cs=(cs+1)/2
+
+    cs=cs**weight
+    cs = tf.reduce_prod(cs)
+    l=l**weight[-1]
+
+    ms_ssim = l*cs
+    ms_ssim = tf.where(tf.is_nan(ms_ssim), K.zeros_like(ms_ssim), ms_ssim)
+
+    return K.mean(ms_ssim)
+
+def mssim_mae_loss(y_true, y_pred):
+    return keras_MS_SSIM(y_true, y_pred) + mean_absolute_error(y_true, y_pred)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="models.internals.losses.DSSIM_loss"><code class="name flex">
+<span>def <span class="ident">DSSIM_loss</span></span>(<span>y_true, y_pred, k1=0.01, k2=0.03, kernel_size=3, max_value=1.0)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def DSSIM_loss(y_true, y_pred, k1=0.01, k2=0.03, kernel_size=3, max_value=1.0):
+    # There are additional parameters for this function
+    # Note: some of the &#39;modes&#39; for edge behavior do not yet have a
+    # gradient definition in the Theano tree
+    #   and cannot be used for learning
+    
+    c1 = (k1 * max_value) ** 2
+    c2 = (k2 * max_value) ** 2
+
+    kernel = [kernel_size, kernel_size]
+    y_true = K.reshape(y_true, [-1] + list(K.int_shape(y_pred)[1:]))
+    y_pred = K.reshape(y_pred, [-1] + list(K.int_shape(y_pred)[1:]))
+
+    patches_pred = tf.extract_image_patches(y_pred, [1, 5, 5, 1], [1, 2, 2, 1], [1, 1, 1, 1], &#34;SAME&#34;)
+    patches_true = tf.extract_image_patches(y_true, [1, 5, 5, 1], [1, 2, 2, 1], [1, 1, 1, 1], &#34;SAME&#34;)
+
+    # Reshape to get the var in the cells
+    bs, w, h, c = K.int_shape(patches_pred)
+    patches_pred = K.reshape(patches_pred, [-1, w, h, c])
+    patches_true = K.reshape(patches_true, [-1, w, h, c])
+    # Get mean
+    u_true = K.mean(patches_true, axis=-1)
+    u_pred = K.mean(patches_pred, axis=-1)
+    # Get variance
+    var_true = K.var(patches_true, axis=-1)
+    var_pred = K.var(patches_pred, axis=-1)
+    # Get std dev
+    covar_true_pred = K.mean(patches_true * patches_pred, axis=-1) - u_true * u_pred
+
+    ssim = (2 * u_true * u_pred + c1) * (2 * covar_true_pred + c2)
+    denom = ((K.square(u_true)
+              + K.square(u_pred)
+              + c1) * (var_pred + var_true + c2))
+    ssim /= denom  # no need for clipping, c1 and c2 make the denom non-zero
+    return K.mean((1.0 - ssim) / 2.0)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.bce_dice_loss"><code class="name flex">
+<span>def <span class="ident">bce_dice_loss</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bce_dice_loss(y_true, y_pred):
+    return 1. - dice_coef(y_true, y_pred) + binary_crossentropy(y_true, y_pred)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.bce_ssim_loss"><code class="name flex">
+<span>def <span class="ident">bce_ssim_loss</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bce_ssim_loss(y_true, y_pred):
+    return DSSIM_loss(y_true, y_pred) + binary_crossentropy(y_true, y_pred)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.dice_coef"><code class="name flex">
+<span>def <span class="ident">dice_coef</span></span>(<span>y_true, y_pred, smooth=1.0)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Dice = (2<em>|X &amp; Y|)/ (|X|+ |Y|)
+=
+2</em>sum(|A*B|)/(sum(A^2)+sum(B^2))
+ref: <a href="https://arxiv.org/pdf/1606.04797v1.pdf">https://arxiv.org/pdf/1606.04797v1.pdf</a></p>
+<p>from wassname as well</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dice_coef(y_true, y_pred, smooth=1.):
+    &#34;&#34;&#34;
+    Dice = (2*|X &amp; Y|)/ (|X|+ |Y|)
+         =  2*sum(|A*B|)/(sum(A^2)+sum(B^2))
+    ref: https://arxiv.org/pdf/1606.04797v1.pdf
+    
+    from wassname as well
+    &#34;&#34;&#34;
+    intersection = K.sum(y_true * y_pred, axis=-1)
+    return (2. * intersection + smooth) / (K.sum(K.square(y_true),-1) + K.sum(K.square(y_pred),-1) + smooth)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.dice_coef_loss"><code class="name flex">
+<span>def <span class="ident">dice_coef_loss</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dice_coef_loss(y_true, y_pred):
+    return 1. - dice_coef(y_true, y_pred)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.dssim_mae_loss"><code class="name flex">
+<span>def <span class="ident">dssim_mae_loss</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dssim_mae_loss(y_true, y_pred):
+    return DSSIM_loss(y_true, y_pred) + mean_absolute_error(y_true, y_pred)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.flatten_binary_scores"><code class="name flex">
+<span>def <span class="ident">flatten_binary_scores</span></span>(<span>scores, labels, ignore=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Flattens predictions in the batch (binary case)
+Remove labels equal to 'ignore'</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flatten_binary_scores(scores, labels, ignore=None):
+    &#34;&#34;&#34;
+    Flattens predictions in the batch (binary case)
+    Remove labels equal to &#39;ignore&#39;
+    &#34;&#34;&#34;
+    scores = tf.reshape(scores, (-1,))
+    labels = tf.reshape(labels, (-1,))
+    if ignore is None:
+        return scores, labels
+    valid = tf.not_equal(labels, ignore)
+    vscores = tf.boolean_mask(scores, valid, name=&#39;valid_scores&#39;)
+    vlabels = tf.boolean_mask(labels, valid, name=&#39;valid_labels&#39;)
+    return vscores, vlabels</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.jaccard_distance_loss"><code class="name flex">
+<span>def <span class="ident">jaccard_distance_loss</span></span>(<span>y_true, y_pred, smooth=100)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Jaccard = (|X &amp; Y|)/ (|X|+ |Y| - |X &amp; Y|)
+= sum(|A<em>B|)/(sum(|A|)+sum(|B|)-sum(|A</em>B|))</p>
+<p>The jaccard distance loss is usefull for unbalanced datasets. This has been
+shifted so it converges on 0 and is smoothed to avoid exploding or disapearing
+gradient.</p>
+<p>Ref: <a href="https://en.wikipedia.org/wiki/Jaccard_index">https://en.wikipedia.org/wiki/Jaccard_index</a></p>
+<p>@url: <a href="https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96">https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96</a>
+@author: wassname</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def jaccard_distance_loss(y_true, y_pred, smooth=100):
+    &#34;&#34;&#34;
+    Jaccard = (|X &amp; Y|)/ (|X|+ |Y| - |X &amp; Y|)
+            = sum(|A*B|)/(sum(|A|)+sum(|B|)-sum(|A*B|))
+    
+    The jaccard distance loss is usefull for unbalanced datasets. This has been
+    shifted so it converges on 0 and is smoothed to avoid exploding or disapearing
+    gradient.
+    
+    Ref: https://en.wikipedia.org/wiki/Jaccard_index
+    
+    @url: https://gist.github.com/wassname/f1452b748efcbeb4cb9b1d059dce6f96
+    @author: wassname
+    &#34;&#34;&#34;
+    intersection = K.sum(y_true * y_pred, axis=-1)
+    sum_ = K.sum(y_true + y_pred, axis=-1)
+    jac = (intersection + smooth) / (sum_ - intersection + smooth)
+    return (1 - jac) * smooth</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.keras_MS_SSIM"><code class="name flex">
+<span>def <span class="ident">keras_MS_SSIM</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def keras_MS_SSIM(y_true, y_pred):
+    iterations = 5
+    x=y_true
+    y=y_pred
+    weight = [0.0448, 0.2856, 0.3001, 0.2363, 0.1333]
+    c=[]
+    s=[]
+    for i in range(iterations):
+        cs=keras_SSIM_cs(x, y)
+        c.append(cs[0])
+        s.append(cs[1])
+        l=cs[2]
+        if(i!=4):
+            x=tf.image.resize_images(x, (x.get_shape().as_list()[1]//(2**(i+1)), x.get_shape().as_list()[2]//(2**(i+1))))
+            y=tf.image.resize_images(y, (y.get_shape().as_list()[1]//(2**(i+1)), y.get_shape().as_list()[2]//(2**(i+1))))
+    c = tf.stack(c)
+    s = tf.stack(s)
+    cs = c*s
+
+    #Normalize: suggestion from https://github.com/jorge-pessoa/pytorch-msssim/issues/2 last comment to avoid NaN values
+    l=(l+1)/2
+    cs=(cs+1)/2
+
+    cs=cs**weight
+    cs = tf.reduce_prod(cs)
+    l=l**weight[-1]
+
+    ms_ssim = l*cs
+    ms_ssim = tf.where(tf.is_nan(ms_ssim), K.zeros_like(ms_ssim), ms_ssim)
+
+    return K.mean(ms_ssim)</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.keras_SSIM_cs"><code class="name flex">
+<span>def <span class="ident">keras_SSIM_cs</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def keras_SSIM_cs(y_true, y_pred):
+    axis=None
+    gaussian = make_kernel(1.5)
+    x = tf.nn.conv2d(y_true, gaussian, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+    y = tf.nn.conv2d(y_pred, gaussian, strides=[1, 1, 1, 1], padding=&#39;SAME&#39;)
+
+    u_x=K.mean(x, axis=axis)
+    u_y=K.mean(y, axis=axis)
+
+    var_x=K.var(x, axis=axis)
+    var_y=K.var(y, axis=axis)
+
+    cov_xy=cov_keras(x, y, axis)
+
+    K1=0.01
+    K2=0.03
+    L=1  # depth of image (255 in case the image has a differnt scale)
+
+    C1=(K1*L)**2
+    C2=(K2*L)**2
+    C3=C2/2
+
+    l = ((2*u_x*u_y)+C1) / (K.pow(u_x,2) + K.pow(u_x,2) + C1)
+    c = ((2*K.sqrt(var_x)*K.sqrt(var_y))+C2) / (var_x + var_y + C2)
+    s = (cov_xy+C3) / (K.sqrt(var_x)*K.sqrt(var_y) + C3)
+
+    return [c,s,l]</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.lovasz_grad"><code class="name flex">
+<span>def <span class="ident">lovasz_grad</span></span>(<span>gt_sorted)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Computes gradient of the Lovasz extension w.r.t sorted errors
+See Alg. 1 in paper</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lovasz_grad(gt_sorted):
+    &#34;&#34;&#34;
+    Computes gradient of the Lovasz extension w.r.t sorted errors
+    See Alg. 1 in paper
+    &#34;&#34;&#34;
+    gts = tf.reduce_sum(gt_sorted)
+    intersection = gts - tf.cumsum(gt_sorted)
+    union = gts + tf.cumsum(1. - gt_sorted)
+    jaccard = 1. - intersection / union
+    jaccard = tf.concat((jaccard[0:1], jaccard[1:] - jaccard[:-1]), 0)
+    return jaccard</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.lovasz_hinge"><code class="name flex">
+<span>def <span class="ident">lovasz_hinge</span></span>(<span>logits, labels, per_image=True, ignore=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Binary Lovasz hinge loss
+logits: [B, H, W] Variable, logits at each pixel (between -\infty and +\infty)
+labels: [B, H, W] Tensor, binary ground truth masks (0 or 1)
+per_image: compute the loss per image instead of per batch
+ignore: void class id</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lovasz_hinge(logits, labels, per_image=True, ignore=None):
+    &#34;&#34;&#34;
+    Binary Lovasz hinge loss
+      logits: [B, H, W] Variable, logits at each pixel (between -\infty and +\infty)
+      labels: [B, H, W] Tensor, binary ground truth masks (0 or 1)
+      per_image: compute the loss per image instead of per batch
+      ignore: void class id
+    &#34;&#34;&#34;
+    if per_image:
+        def treat_image(log_lab):
+            log, lab = log_lab
+            log, lab = tf.expand_dims(log, 0), tf.expand_dims(lab, 0)
+            log, lab = flatten_binary_scores(log, lab, ignore)
+            return lovasz_hinge_flat(log, lab)
+        losses = tf.map_fn(treat_image, (logits, labels), dtype=tf.float32)
+        loss = tf.reduce_mean(losses)
+    else:
+        loss = lovasz_hinge_flat(*flatten_binary_scores(logits, labels, ignore))
+    return loss</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.lovasz_hinge_flat"><code class="name flex">
+<span>def <span class="ident">lovasz_hinge_flat</span></span>(<span>logits, labels)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Binary Lovasz hinge loss
+logits: [P] Variable, logits at each prediction (between -\infty and +\infty)
+labels: [P] Tensor, binary ground truth labels (0 or 1)
+ignore: label to ignore</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lovasz_hinge_flat(logits, labels):
+    &#34;&#34;&#34;
+    Binary Lovasz hinge loss
+      logits: [P] Variable, logits at each prediction (between -\infty and +\infty)
+      labels: [P] Tensor, binary ground truth labels (0 or 1)
+      ignore: label to ignore
+    &#34;&#34;&#34;
+
+    def compute_loss():
+        labelsf = tf.cast(labels, logits.dtype)
+        signs = 2. * labelsf - 1.
+        errors = 1. - logits * tf.stop_gradient(signs)
+        errors_sorted, perm = tf.nn.top_k(errors, k=tf.shape(errors)[0], name=&#34;descending_sort&#34;)
+        gt_sorted = tf.gather(labelsf, perm)
+        grad = lovasz_grad(gt_sorted)
+        loss = tf.tensordot(tf.nn.relu(errors_sorted), tf.stop_gradient(grad), 1, name=&#34;loss_non_void&#34;)
+        return loss
+
+    # deal with the void prediction case (only void pixels)
+    loss = tf.cond(tf.equal(tf.shape(logits)[0], 0),
+                   lambda: tf.reduce_sum(logits) * 0.,
+                   compute_loss,
+                   strict=True,
+                   name=&#34;loss&#34;
+                   )
+    return loss</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.lovasz_loss"><code class="name flex">
+<span>def <span class="ident">lovasz_loss</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def lovasz_loss(y_true, y_pred):
+    y_true, y_pred = K.cast(K.squeeze(y_true, -1), &#39;int32&#39;), K.cast(K.squeeze(y_pred, -1), &#39;float32&#39;)
+    #logits = K.log(y_pred / (1. - y_pred))
+    logits = y_pred #Jiaxin
+    loss = lovasz_hinge(logits, y_true, per_image = True, ignore = None)
+    return loss</code></pre>
+</details>
+</dd>
+<dt id="models.internals.losses.mssim_mae_loss"><code class="name flex">
+<span>def <span class="ident">mssim_mae_loss</span></span>(<span>y_true, y_pred)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def mssim_mae_loss(y_true, y_pred):
+    return keras_MS_SSIM(y_true, y_pred) + mean_absolute_error(y_true, y_pred)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="models.internals" href="index.html">models.internals</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="models.internals.losses.DSSIM_loss" href="#models.internals.losses.DSSIM_loss">DSSIM_loss</a></code></li>
+<li><code><a title="models.internals.losses.bce_dice_loss" href="#models.internals.losses.bce_dice_loss">bce_dice_loss</a></code></li>
+<li><code><a title="models.internals.losses.bce_ssim_loss" href="#models.internals.losses.bce_ssim_loss">bce_ssim_loss</a></code></li>
+<li><code><a title="models.internals.losses.dice_coef" href="#models.internals.losses.dice_coef">dice_coef</a></code></li>
+<li><code><a title="models.internals.losses.dice_coef_loss" href="#models.internals.losses.dice_coef_loss">dice_coef_loss</a></code></li>
+<li><code><a title="models.internals.losses.dssim_mae_loss" href="#models.internals.losses.dssim_mae_loss">dssim_mae_loss</a></code></li>
+<li><code><a title="models.internals.losses.flatten_binary_scores" href="#models.internals.losses.flatten_binary_scores">flatten_binary_scores</a></code></li>
+<li><code><a title="models.internals.losses.jaccard_distance_loss" href="#models.internals.losses.jaccard_distance_loss">jaccard_distance_loss</a></code></li>
+<li><code><a title="models.internals.losses.keras_MS_SSIM" href="#models.internals.losses.keras_MS_SSIM">keras_MS_SSIM</a></code></li>
+<li><code><a title="models.internals.losses.keras_SSIM_cs" href="#models.internals.losses.keras_SSIM_cs">keras_SSIM_cs</a></code></li>
+<li><code><a title="models.internals.losses.lovasz_grad" href="#models.internals.losses.lovasz_grad">lovasz_grad</a></code></li>
+<li><code><a title="models.internals.losses.lovasz_hinge" href="#models.internals.losses.lovasz_hinge">lovasz_hinge</a></code></li>
+<li><code><a title="models.internals.losses.lovasz_hinge_flat" href="#models.internals.losses.lovasz_hinge_flat">lovasz_hinge_flat</a></code></li>
+<li><code><a title="models.internals.losses.lovasz_loss" href="#models.internals.losses.lovasz_loss">lovasz_loss</a></code></li>
+<li><code><a title="models.internals.losses.mssim_mae_loss" href="#models.internals.losses.mssim_mae_loss">mssim_mae_loss</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.1</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+matplotlib==3.1.2
+scikit-image==0.17.2            
+scikit-learn==0.22.1
+ruamel.yaml==0.16.12
+tqdm==4.53.0
+tensorflow-gpu==1.14.0
+protobuf==3.11.2 
+PyYAML==5.3
+albumentations==0.5.1
+Keras==2.3.0
+jupyterlab==1.2.5
+jupyter-tensorboard==0.1.10
+tensorboard==1.14.0
+numba==0.48.0
+ipywidgets==7.5.1
+npm
+h5py==2.10.0
+
+
+#conda install -c conda-forge nodejs==16.13.2
